@@ -3,15 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="A clean learning management system prototype for the New Economic School." />
-  <title>NES LMS</title>
+  <meta name="description" content="A clean role-aware learning management system prototype for the New Economic School." />
+  <title>NES Learning</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="v2.css" />
 </head>
 <body>
-  <div class="app-shell">
+  <section class="login-screen" id="loginScreen">
+    <div class="login-brand">
+      <div class="login-mark">N</div>
+      <div>
+        <div class="login-school">New Economic School</div>
+        <div class="login-product">Learning</div>
+      </div>
+    </div>
+
+    <div class="login-layout">
+      <div class="login-copy">
+        <div class="eyebrow">NES Learning</div>
+        <h1>One place for courses, coursework and feedback.</h1>
+        <p>A focused learning environment for students, teaching assistants and instructors.</p>
+        <div class="login-feature-row">
+          <div><strong>Courses</strong><span>Materials and announcements</span></div>
+          <div><strong>Coursework</strong><span>Deadlines and submissions</span></div>
+          <div><strong>Feedback</strong><span>Grades and comments</span></div>
+        </div>
+      </div>
+
+      <div class="login-card">
+        <div class="login-card-head">
+          <div class="login-card-mark">N</div>
+          <div><h2>Sign in</h2><p>Use your NES account to continue.</p></div>
+        </div>
+        <label class="login-label" for="demoEmail">NES email</label>
+        <input id="demoEmail" class="login-input" type="email" value="student@nes.ru" aria-label="NES email" />
+        <button class="primary-button login-primary" id="signInButton">Continue with NES ID</button>
+        <div class="login-divider"><span>Prototype roles</span></div>
+        <div class="demo-role-grid">
+          <button class="demo-role" data-login-role="student"><span>Student</span><small>Courses, assignments, grades</small></button>
+          <button class="demo-role" data-login-role="ta"><span>Teaching Assistant</span><small>Submissions and grading</small></button>
+          <button class="demo-role" data-login-role="instructor"><span>Instructor</span><small>Course and gradebook tools</small></button>
+        </div>
+        <p class="prototype-note">Prototype only — no real authentication or student data is used.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="app-shell hidden" id="appShell">
     <aside class="sidebar" id="sidebar">
       <div class="brand-row">
         <button class="brand" data-route="dashboard" aria-label="Go to dashboard">
@@ -25,34 +66,25 @@
       </div>
 
       <nav class="primary-nav" aria-label="Primary navigation">
-        <button class="nav-item active" data-route="dashboard">
-          <span class="nav-icon" aria-hidden="true">⌂</span><span>Dashboard</span>
-        </button>
-        <button class="nav-item" data-route="courses">
-          <span class="nav-icon" aria-hidden="true">▦</span><span>Courses</span>
-        </button>
-        <button class="nav-item" data-route="assignments">
-          <span class="nav-icon" aria-hidden="true">✓</span><span>Assignments</span>
-        </button>
-        <button class="nav-item" data-route="calendar">
-          <span class="nav-icon" aria-hidden="true">□</span><span>Calendar</span>
-        </button>
-        <button class="nav-item" data-route="grades">
-          <span class="nav-icon" aria-hidden="true">↗</span><span>Grades</span>
-        </button>
+        <button class="nav-item active" data-route="dashboard"><span class="nav-icon">⌂</span><span>Dashboard</span></button>
+        <button class="nav-item" data-route="courses"><span class="nav-icon">▦</span><span>Courses</span></button>
+        <button class="nav-item" data-route="assignments"><span class="nav-icon">✓</span><span>Assignments</span></button>
+        <button class="nav-item" data-route="calendar"><span class="nav-icon">□</span><span>Calendar</span></button>
+        <button class="nav-item" data-route="grades"><span class="nav-icon">↗</span><span>Grades</span></button>
+        <button class="nav-item staff-nav hidden" data-route="teaching"><span class="nav-icon">◇</span><span>Teaching</span></button>
       </nav>
 
       <div class="sidebar-section">
-        <div class="sidebar-label">Current courses</div>
+        <div class="sidebar-label" id="sidebarCourseLabel">Current courses</div>
         <div id="sidebarCourses"></div>
       </div>
 
       <div class="sidebar-footer">
-        <button class="profile-card" data-route="profile">
-          <span class="avatar">AS</span>
+        <button class="profile-card" id="profileCard" data-route="profile">
+          <span class="avatar" id="profileAvatar">AS</span>
           <span class="profile-meta">
-            <span class="profile-name">A. Student</span>
-            <span class="profile-role">MAE · Year 2</span>
+            <span class="profile-name" id="profileName">A. Student</span>
+            <span class="profile-role" id="profileRole">MAE · Year 2</span>
           </span>
           <span class="profile-chevron">›</span>
         </button>
@@ -68,10 +100,13 @@
           <div class="breadcrumbs" id="breadcrumbs">Dashboard</div>
         </div>
         <div class="topbar-actions">
+          <div class="role-switcher" id="roleSwitcher" aria-label="Preview role">
+            <button data-role="student">Student</button>
+            <button data-role="ta">TA</button>
+            <button data-role="instructor">Instructor</button>
+          </div>
           <button class="icon-button" id="searchButton" aria-label="Search">⌕</button>
-          <button class="icon-button notification-button" aria-label="Notifications">
-            ♢<span class="notification-dot"></span>
-          </button>
+          <button class="icon-button notification-button" aria-label="Notifications">♢<span class="notification-dot"></span></button>
           <button class="term-switcher">Fall 2026 <span>⌄</span></button>
         </div>
       </header>

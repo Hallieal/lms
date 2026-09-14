@@ -5,7 +5,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; message?: string }>;
 }) {
   const params = await searchParams;
   const configured = isSupabaseConfigured();
@@ -22,7 +22,7 @@ export default async function SignInPage({
         <small>NES Learning · {configured ? 'Secure sign-in' : 'Product prototype'}</small>
       </section>
       <section className="login-panel">
-        {configured ? <LoginForm error={params.error} /> : <DemoRolePicker />}
+        {configured ? <LoginForm error={params.error} message={params.message} /> : <DemoRolePicker />}
       </section>
     </main>
   );

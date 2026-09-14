@@ -1,10 +1,11 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { courses } from '@/lib/mock-data';
+import { signOut } from '@/app/auth/actions';
 import { useRole } from './role-context';
-import type { Role } from '@/lib/types';
+import type { Course, Role } from '@/lib/types';
 
 const nav = [
   { href: '/dashboard', label: 'Dashboard', icon: '⌂' },
@@ -20,10 +21,34 @@ const people: Record<Role, { initials: string; name: string; subtitle: string }>
   instructor: { initials: 'IN', name: 'Instructor', subtitle: 'Faculty' },
 };
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  authenticated = false,
+  authenticatedRole,
+  courses,
+}: {
+  children: React.ReactNode;
+  authenticated?: boolean;
+  authenticatedRole?: Role;
+  courses: Course[];
+}) {
   const pathname = usePathname();
   const { role, setRole } = useRole();
-  const person = people[role];
+
+  useEffect(() => {
+    if (authenticated && authenticatedRole && authenticatedRole !== role) {
+      setRole(authenticatedRole);
+    }
+  }, [authenticated, authenticatedRole, role, setRole]);
+
+  const effectiveRole = authenticated && authenticatedRole ? authenticatedRole : role;
+  const person = authenticated
+    ? {
+        initials: effectiveRole === 'student' ? 'S' : effectiveRole === 'ta' ? 'TA' : 'IN',
+        name: effectiveRole === 'student' ? 'Student account' : effectiveRole === 'ta' ? 'Teaching Assistant' : 'Instructor',
+        subtitle: 'Authenticated NES session',
+      }
+    : people[role];
 
   return (
     <div className="app-shell">
@@ -46,12 +71,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="sidebar-section">
           <p className="sidebar-label">Current courses</p>
-          {courses.map((course) => (
+          {courses.length ? courses.map((course) => (
             <Link key={course.id} href={`/courses/${course.id}`} className="course-mini">
               <span className="course-dot" style={{ background: course.color }} />
               <span>{course.title}</span>
             </Link>
-          ))}
+          )) : <p className="sidebar-empty">No active courses</p>}
         </div>
 
         <div className="sidebar-footer">
@@ -59,6 +84,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="avatar">{person.initials}</span>
             <span className="profile-meta"><strong>{person.name}</strong><small>{person.subtitle}</small></span>
           </div>
+          {authenticated ? (
+            <form action={signOut}>
+              <button type="submit" className="signout-button">Sign out</button>
+            </form>
+          ) : null}
         </div>
       </aside>
 
@@ -66,14 +96,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <header className="topbar">
           <span className="breadcrumbs">Fall 2026</span>
           <div className="topbar-actions">
-            <label className="role-switcher">
-              <span>Preview as</span>
-              <select value={role} onChange={(event) => setRole(event.target.value as Role)}>
-                <option value="student">Student</option>
-                <option value="ta">Teaching Assistant</option>
-                <option value="instructor">Instructor</option>
-              </select>
-            </label>
+            {!authenticated ? (
+              <label className="role-switcher">
+                <span>Preview as</span>
+                <select value={role} onChange={(event) => setRole(event.target.value as Role)}>
+                  <option value="student">Student</option>
+                  <option value="ta">Teaching Assistant</option>
+                  <option value="instructor">Instructor</option>
+                </select>
+              </label>
+            ) : null}
             <button className="icon-button" aria-label="Notifications">♢<i /></button>
           </div>
         </header>

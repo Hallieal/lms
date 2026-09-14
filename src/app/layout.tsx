@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import './auth.css';
 import { RoleProvider } from '@/components/role-context';
 
 export const metadata: Metadata = {

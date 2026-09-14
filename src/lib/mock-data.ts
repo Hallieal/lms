@@ -1,4 +1,4 @@
-import type { Assignment, Course, CourseModule } from './types';
+import type { Announcement, Assignment, Course, CourseModule } from './types';
 
 export const courses: Course[] = [
   { id: 'econometrics', code: 'MAE 202', title: 'Econometrics II', professor: 'Elena Tuzhilina', color: '#2f6f9f', progress: 62, students: 74 },
@@ -8,11 +8,11 @@ export const courses: Course[] = [
 ];
 
 export const assignments: Assignment[] = [
-  { id: 1, title: 'Problem Set 3: Instrumental Variables', course: 'Econometrics II', courseId: 'econometrics', due: 'Sep 18 · 23:59', points: 20, status: 'open', submitted: 59, graded: 18, total: 74 },
-  { id: 2, title: 'Problem Set 2: General Equilibrium', course: 'Microeconomics II', courseId: 'micro', due: 'Sep 20 · 23:59', points: 15, status: 'open', submitted: 41, graded: 8, total: 71 },
-  { id: 3, title: 'Sorting and Two Pointers', course: 'Algorithms', courseId: 'algorithms', due: 'Sep 22 · 19:00', points: 10, status: 'submitted', submitted: 47, graded: 26, total: 52 },
-  { id: 4, title: 'Trade Model Replication', course: 'International Trade', courseId: 'trade', due: 'Sep 27 · 23:59', points: 25, status: 'open', submitted: 21, graded: 0, total: 63 },
-  { id: 5, title: 'Problem Set 2: Panel Data', course: 'Econometrics II', courseId: 'econometrics', due: 'Sep 11 · 23:59', points: 20, status: 'graded', submitted: 73, graded: 73, total: 74 },
+  { id: '1', title: 'Problem Set 3: Instrumental Variables', course: 'Econometrics II', courseId: 'econometrics', due: 'Sep 18 · 23:59', points: 20, status: 'open', submitted: 59, graded: 18, total: 74 },
+  { id: '2', title: 'Problem Set 2: General Equilibrium', course: 'Microeconomics II', courseId: 'micro', due: 'Sep 20 · 23:59', points: 15, status: 'open', submitted: 41, graded: 8, total: 71 },
+  { id: '3', title: 'Sorting and Two Pointers', course: 'Algorithms', courseId: 'algorithms', due: 'Sep 22 · 19:00', points: 10, status: 'submitted', submitted: 47, graded: 26, total: 52 },
+  { id: '4', title: 'Trade Model Replication', course: 'International Trade', courseId: 'trade', due: 'Sep 27 · 23:59', points: 25, status: 'open', submitted: 21, graded: 0, total: 63 },
+  { id: '5', title: 'Problem Set 2: Panel Data', course: 'Econometrics II', courseId: 'econometrics', due: 'Sep 11 · 23:59', points: 20, status: 'graded', submitted: 73, graded: 73, total: 74 },
 ];
 
 export const modules: Record<string, CourseModule[]> = {
@@ -35,7 +35,7 @@ export const modules: Record<string, CourseModule[]> = {
   ],
 };
 
-export const announcements = [
+export const announcements: Announcement[] = [
   { course: 'Econometrics II', title: 'Office hours moved to Friday', text: 'This week only, office hours will be held Friday at 15:00 in room 403.', time: '2 hours ago' },
   { course: 'Algorithms', title: 'Seminar materials are available', text: 'Slides and Python solutions from the sorting seminar have been uploaded.', time: 'Yesterday' },
   { course: 'International Trade', title: 'Reading for next week', text: 'Please read the selected sections before Tuesday’s lecture.', time: 'Sep 12' },

@@ -13,7 +13,7 @@ export type Course = {
 export type AssignmentStatus = 'open' | 'submitted' | 'graded' | 'late';
 
 export type Assignment = {
-  id: number;
+  id: string;
   title: string;
   course: string;
   courseId: string;
@@ -33,4 +33,11 @@ export type CourseModule = {
     title: string;
     kind: 'PDF' | 'SLIDES' | 'DATA' | 'CODE' | 'WEB' | 'ASSIGNMENT';
   }>;
+};
+
+export type Announcement = {
+  course: string;
+  title: string;
+  text: string;
+  time: string;
 };

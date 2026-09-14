@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut } from '@/app/auth/actions';
 import { courses } from '@/lib/mock-data';
 import { useRole } from './role-context';
 import type { Role } from '@/lib/types';
@@ -20,10 +21,18 @@ const people: Record<Role, { initials: string; name: string; subtitle: string }>
   instructor: { initials: 'IN', name: 'Instructor', subtitle: 'Faculty' },
 };
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({
+  children,
+  authenticated = false,
+}: {
+  children: React.ReactNode;
+  authenticated?: boolean;
+}) {
   const pathname = usePathname();
   const { role, setRole } = useRole();
-  const person = people[role];
+  const person = authenticated
+    ? { initials: 'N', name: 'NES account', subtitle: 'Authenticated session' }
+    : people[role];
 
   return (
     <div className="app-shell">
@@ -59,6 +68,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="avatar">{person.initials}</span>
             <span className="profile-meta"><strong>{person.name}</strong><small>{person.subtitle}</small></span>
           </div>
+          {authenticated ? (
+            <form action={signOut}>
+              <button type="submit" className="signout-button">Sign out</button>
+            </form>
+          ) : null}
         </div>
       </aside>
 
@@ -66,14 +80,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <header className="topbar">
           <span className="breadcrumbs">Fall 2026</span>
           <div className="topbar-actions">
-            <label className="role-switcher">
-              <span>Preview as</span>
-              <select value={role} onChange={(event) => setRole(event.target.value as Role)}>
-                <option value="student">Student</option>
-                <option value="ta">Teaching Assistant</option>
-                <option value="instructor">Instructor</option>
-              </select>
-            </label>
+            {!authenticated ? (
+              <label className="role-switcher">
+                <span>Preview as</span>
+                <select value={role} onChange={(event) => setRole(event.target.value as Role)}>
+                  <option value="student">Student</option>
+                  <option value="ta">Teaching Assistant</option>
+                  <option value="instructor">Instructor</option>
+                </select>
+              </label>
+            ) : null}
             <button className="icon-button" aria-label="Notifications">♢<i /></button>
           </div>
         </header>

@@ -1,11 +1,11 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from '@/app/auth/actions';
-import { courses } from '@/lib/mock-data';
 import { useRole } from './role-context';
-import type { Role } from '@/lib/types';
+import type { Course, Role } from '@/lib/types';
 
 const nav = [
   { href: '/dashboard', label: 'Dashboard', icon: '⌂' },
@@ -24,14 +24,30 @@ const people: Record<Role, { initials: string; name: string; subtitle: string }>
 export function AppShell({
   children,
   authenticated = false,
+  authenticatedRole,
+  courses,
 }: {
   children: React.ReactNode;
   authenticated?: boolean;
+  authenticatedRole?: Role;
+  courses: Course[];
 }) {
   const pathname = usePathname();
   const { role, setRole } = useRole();
+
+  useEffect(() => {
+    if (authenticated && authenticatedRole && authenticatedRole !== role) {
+      setRole(authenticatedRole);
+    }
+  }, [authenticated, authenticatedRole, role, setRole]);
+
+  const effectiveRole = authenticated && authenticatedRole ? authenticatedRole : role;
   const person = authenticated
-    ? { initials: 'N', name: 'NES account', subtitle: 'Authenticated session' }
+    ? {
+        initials: effectiveRole === 'student' ? 'S' : effectiveRole === 'ta' ? 'TA' : 'IN',
+        name: effectiveRole === 'student' ? 'Student account' : effectiveRole === 'ta' ? 'Teaching Assistant' : 'Instructor',
+        subtitle: 'Authenticated NES session',
+      }
     : people[role];
 
   return (
@@ -55,12 +71,12 @@ export function AppShell({
 
         <div className="sidebar-section">
           <p className="sidebar-label">Current courses</p>
-          {courses.map((course) => (
+          {courses.length ? courses.map((course) => (
             <Link key={course.id} href={`/courses/${course.id}`} className="course-mini">
               <span className="course-dot" style={{ background: course.color }} />
               <span>{course.title}</span>
             </Link>
-          ))}
+          )) : <p className="sidebar-empty">No active courses</p>}
         </div>
 
         <div className="sidebar-footer">

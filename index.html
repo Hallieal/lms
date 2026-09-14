@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A clean learning management system prototype for the New Economic School." />
+  <title>NES LMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-row">
+        <button class="brand" data-route="dashboard" aria-label="Go to dashboard">
+          <span class="brand-mark">N</span>
+          <span class="brand-copy">
+            <span class="brand-name">NES</span>
+            <span class="brand-subtitle">Learning</span>
+          </span>
+        </button>
+        <button class="icon-button mobile-only" id="closeSidebar" aria-label="Close navigation">×</button>
+      </div>
+
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <button class="nav-item active" data-route="dashboard">
+          <span class="nav-icon" aria-hidden="true">⌂</span><span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-route="courses">
+          <span class="nav-icon" aria-hidden="true">▦</span><span>Courses</span>
+        </button>
+        <button class="nav-item" data-route="assignments">
+          <span class="nav-icon" aria-hidden="true">✓</span><span>Assignments</span>
+        </button>
+        <button class="nav-item" data-route="calendar">
+          <span class="nav-icon" aria-hidden="true">□</span><span>Calendar</span>
+        </button>
+        <button class="nav-item" data-route="grades">
+          <span class="nav-icon" aria-hidden="true">↗</span><span>Grades</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Current courses</div>
+        <div id="sidebarCourses"></div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="profile-card" data-route="profile">
+          <span class="avatar">AS</span>
+          <span class="profile-meta">
+            <span class="profile-name">A. Student</span>
+            <span class="profile-role">MAE · Year 2</span>
+          </span>
+          <span class="profile-chevron">›</span>
+        </button>
+      </div>
+    </aside>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <main class="main-panel">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-button menu-button" id="openSidebar" aria-label="Open navigation">☰</button>
+          <div class="breadcrumbs" id="breadcrumbs">Dashboard</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-button" id="searchButton" aria-label="Search">⌕</button>
+          <button class="icon-button notification-button" aria-label="Notifications">
+            ♢<span class="notification-dot"></span>
+          </button>
+          <button class="term-switcher">Fall 2026 <span>⌄</span></button>
+        </div>
+      </header>
+
+      <section class="content" id="appContent" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <div class="command-palette hidden" id="commandPalette" role="dialog" aria-modal="true" aria-label="Search">
+    <div class="command-panel">
+      <div class="command-search-row">
+        <span>⌕</span>
+        <input id="commandInput" type="search" placeholder="Search courses, assignments, materials…" autocomplete="off" />
+        <kbd>Esc</kbd>
+      </div>
+      <div class="command-results" id="commandResults"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

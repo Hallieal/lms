@@ -1,12 +1,18 @@
 -- Automatically mirror Supabase Auth users into public.profiles.
--- Course membership and ownership records reference profiles, so this row must
--- exist before an authenticated user can participate in the LMS domain model.
+-- This trigger function is SECURITY DEFINER because auth.users is owned by the
+-- auth subsystem, but it lives in a non-exposed schema and is not callable by
+-- public API roles.
 
-create or replace function public.handle_new_user()
+create schema if not exists app_private;
+revoke all on schema app_private from public;
+
+grant usage on schema app_private to authenticated;
+
+create or replace function app_private.handle_new_user()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 begin
   insert into public.profiles (id, display_name, programme, cohort)
@@ -26,11 +32,13 @@ begin
 end;
 $$;
 
+revoke all on function app_private.handle_new_user() from public;
+
 drop trigger if exists on_auth_user_created on auth.users;
 
 create trigger on_auth_user_created
 after insert on auth.users
-for each row execute procedure public.handle_new_user();
+for each row execute procedure app_private.handle_new_user();
 
 -- Backfill profiles for users that existed before this migration.
 insert into public.profiles (id, display_name)

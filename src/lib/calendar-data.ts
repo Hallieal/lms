@@ -16,6 +16,17 @@ const demoItems: CalendarItem[] = [
   { id: 'demo-27', day: 27, title: 'Trade replication', kind: 'deadline' },
 ];
 
+function torontoDateParts(value: string) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    timeZone: 'America/Toronto',
+  }).formatToParts(new Date(value));
+  const get = (type: 'year' | 'month' | 'day') => Number(parts.find((part) => part.type === type)?.value ?? 0);
+  return { year: get('year'), month: get('month'), day: get('day') };
+}
+
 export async function getCalendarData(year = 2026, month = 9): Promise<CalendarItem[]> {
   if (!isSupabaseConfigured()) return demoItems;
 
@@ -24,8 +35,10 @@ export async function getCalendarData(year = 2026, month = 9): Promise<CalendarI
 
   const supabase = await createClient();
   const courseIds = viewer.courses.map((course) => course.id);
-  const start = new Date(Date.UTC(year, month - 1, 1)).toISOString();
-  const end = new Date(Date.UTC(year, month, 1)).toISOString();
+  // Query a slightly wider UTC window, then filter by Toronto calendar parts.
+  // This avoids dropping late-evening local events at month boundaries.
+  const start = new Date(Date.UTC(year, month - 1, 0)).toISOString();
+  const end = new Date(Date.UTC(year, month, 2)).toISOString();
 
   const [{ data: events }, { data: assignments }] = await Promise.all([
     supabase
@@ -45,18 +58,18 @@ export async function getCalendarData(year = 2026, month = 9): Promise<CalendarI
       .order('due_at'),
   ]);
 
-  const eventItems: CalendarItem[] = ((events ?? []) as Array<{ id: string; title: string; starts_at: string }>).map((row) => ({
-    id: `event-${row.id}`,
-    day: new Date(row.starts_at).getDate(),
-    title: row.title,
-    kind: 'event',
-  }));
-  const deadlineItems: CalendarItem[] = ((assignments ?? []) as Array<{ id: string; title: string; due_at: string }>).map((row) => ({
-    id: `deadline-${row.id}`,
-    day: new Date(row.due_at).getDate(),
-    title: row.title,
-    kind: 'deadline',
-  }));
+  const eventItems: CalendarItem[] = ((events ?? []) as Array<{ id: string; title: string; starts_at: string }>).flatMap((row) => {
+    const local = torontoDateParts(row.starts_at);
+    return local.year === year && local.month === month
+      ? [{ id: `event-${row.id}`, day: local.day, title: row.title, kind: 'event' as const }]
+      : [];
+  });
+  const deadlineItems: CalendarItem[] = ((assignments ?? []) as Array<{ id: string; title: string; due_at: string }>).flatMap((row) => {
+    const local = torontoDateParts(row.due_at);
+    return local.year === year && local.month === month
+      ? [{ id: `deadline-${row.id}`, day: local.day, title: row.title, kind: 'deadline' as const }]
+      : [];
+  });
 
   return [...eventItems, ...deadlineItems].sort((a, b) => a.day - b.day || a.title.localeCompare(b.title));
 }

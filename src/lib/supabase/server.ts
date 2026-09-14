@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import type { Database } from '@/lib/database.types';
 
 export async function createClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -11,7 +12,7 @@ export async function createClient() {
 
   const cookieStore = await cookies();
 
-  return createServerClient(url, key, {
+  return createServerClient<Database>(url, key, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -20,8 +21,8 @@ export async function createClient() {
         try {
           cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
         } catch {
-          // Server Components cannot always write cookies. Session refresh will
-          // be handled by the auth boundary once real sign-in is enabled.
+          // Server Components cannot always write cookies. Session refresh is
+          // handled by the proxy boundary.
         }
       },
     },

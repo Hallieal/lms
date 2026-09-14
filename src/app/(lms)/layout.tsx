@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { AppShell } from '@/components/app-shell';
 import { getViewerContext } from '@/lib/data';
+import { getPlatformAdminContext } from '@/lib/admin';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 
 export default async function LmsLayout({ children }: { children: React.ReactNode }) {
@@ -11,11 +12,13 @@ export default async function LmsLayout({ children }: { children: React.ReactNod
     redirect('/');
   }
 
+  const admin = configured ? await getPlatformAdminContext() : { isAdmin: false, courses: [] };
+
   return (
     <AppShell
       authenticated={configured}
-      authenticatedRole={viewer.role}
-      courses={viewer.courses}
+      authenticatedRole={admin.isAdmin ? 'instructor' : viewer.role}
+      courses={admin.isAdmin ? admin.courses : viewer.courses}
     >
       {children}
     </AppShell>

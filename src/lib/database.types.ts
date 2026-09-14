@@ -81,6 +81,12 @@ export type Database = {
         Update: { course_id?: string; created_at?: string; description?: string | null; id?: string; position?: number; release_at?: string | null; title?: string; updated_at?: string };
         Relationships: [{ foreignKeyName: "modules_course_id_fkey"; columns: ["course_id"]; isOneToOne: false; referencedRelation: "courses"; referencedColumns: ["id"] }];
       };
+      platform_admins: {
+        Row: { granted_at: string; granted_by: string | null; user_id: string };
+        Insert: { granted_at?: string; granted_by?: string | null; user_id: string };
+        Update: { granted_at?: string; granted_by?: string | null; user_id?: string };
+        Relationships: [];
+      };
       profiles: {
         Row: { cohort: string | null; created_at: string; display_name: string; id: string; programme: string | null; updated_at: string };
         Insert: { cohort?: string | null; created_at?: string; display_name: string; id: string; programme?: string | null; updated_at?: string };

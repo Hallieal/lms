@@ -1,87 +1,74 @@
 # NES Learning
 
-A lightweight learning management system prototype designed around the day-to-day structure of courses at the New Economic School.
+A role-aware learning management system prototype designed around the day-to-day structure of courses at the New Economic School.
 
-The repository currently contains a dependency-free interactive UX prototype. The goal of this phase is to settle the product structure, permissions and visual language before moving to a persistent backend.
+The repository now contains two layers:
 
-## Current prototype
+- the original dependency-free UX prototype in `index.html`, `app.js`, `styles.css` and `v2.css`;
+- a production-oriented Next.js application foundation under `src/`.
 
-The demo now supports three preview roles inside one application:
+No real student data is stored and the project is not affiliated with or deployed by the New Economic School.
 
-- Student — dashboard, course materials, assignments, submissions, grades, calendar and search;
-- Teaching Assistant — teaching dashboard, submission progress, grading queue and gradebook access;
-- Instructor — course-management controls, coursework monitoring, gradebook and publishing actions.
+## Next.js application
 
-The entry screen also includes a prototype NES sign-in flow. Authentication is not real yet and no real student data is stored.
+The new application uses:
 
-## Main workflows
+- Next.js 16 App Router;
+- React + TypeScript;
+- typed LMS domain objects;
+- role-aware Student / TA / Instructor interfaces;
+- Supabase SSR/browser clients prepared for authentication and persistence;
+- the existing PostgreSQL/Supabase schema in `supabase/schema.sql`;
+- GitHub Actions for TypeScript and production-build checks.
 
-Student experience:
-
-- term dashboard with the next deadline and announcements;
-- current-course overview and individual course pages;
-- course modules and learning materials;
-- assignment details and submission UI;
-- consolidated grade view;
-- academic calendar;
-- command-palette search (`Ctrl/Cmd + K`).
-
-Teaching experience:
-
-- cross-course teaching dashboard;
-- assignments requiring attention;
-- submission and grading progress;
-- course-management toolbar;
-- editable gradebook prototype;
-- publishing/export controls;
-- quick actions for assignments, materials and announcements.
-
-## Files
+### Routes
 
 ```text
-lms/
-├── index.html      # application shell and sign-in screen
-├── styles.css      # base responsive design system
-├── v2.css          # role-aware and teaching-workspace additions
-├── app.js          # demo data, routing, permissions and interactive views
-└── README.md
+/                         prototype sign-in / role preview
+/dashboard                student or teaching dashboard
+/courses                  current courses
+/courses/[courseId]       course materials and staff controls
+/assignments              coursework overview
+/assignments/[id]         submission or grading workflow
+/grades                    student grades or staff gradebook
+/calendar                  academic calendar
 ```
 
-## Running locally
+Role preview is currently persisted in `localStorage`. It is deliberately isolated behind `RoleProvider` so it can later be replaced by the authenticated course membership returned from Supabase.
 
-The prototype has no build step. Serve the repository with any static HTTP server:
+## Running the Next.js app
 
 ```bash
-python -m http.server 8000
+npm install
+npm run dev
 ```
 
-Then open `http://localhost:8000`.
+Open `http://localhost:3000`.
 
-GitHub Pages can also serve the current prototype directly from `main` / repository root.
-
-## Product principles
-
-NES Learning should remain substantially simpler than a generic enterprise LMS. The interface should optimize for the recurring academic objects that actually matter: courses, materials, problem sets, submissions, feedback, grades, announcements and deadlines.
-
-The same application shell should expose different capabilities through role-based permissions rather than splitting students and instructors into unrelated products.
-
-Mathematical and quantitative courses are first-class use cases. The production application should therefore support LaTeX/Markdown content, code attachments and structured problem-set workflows cleanly.
-
-## Production direction
-
-Once the UX is stable, the intended architecture is:
-
-- Next.js / React for the application UI;
-- PostgreSQL for academic data;
-- Supabase or an equivalent service for authentication, database access and file storage;
-- row-level / role-based authorization for students, teaching assistants, instructors and administrators;
-- object storage for materials and submissions;
-- server-side audit history for submissions, grading and publishing actions.
-
-## Planned domain model
+Before connecting Supabase, copy `.env.example` to `.env.local` and provide:
 
 ```text
-users
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+```
+
+The current UI does not require those variables yet; the clients are prepared for the authentication phase.
+
+Useful checks:
+
+```bash
+npm run typecheck
+npm run build
+```
+
+The same commands run in GitHub Actions.
+
+## Domain model
+
+The production schema centers on:
+
+```text
+profiles
 courses
 course_members
 modules
@@ -93,30 +80,42 @@ announcements
 calendar_events
 ```
 
-`course_members` connects a user to a course with a role such as `student`, `ta`, or `instructor`. Permissions should be derived from that membership rather than from client-side UI state.
+`course_members` is the authorization boundary that connects a user to a course with a role such as `student`, `ta`, or `instructor`. Client-side visibility is not treated as security; database policies must enforce access to submissions, grades and unpublished content.
 
-## Development phases
+## Product principles
 
-### Phase 1 — UX prototype
+NES Learning should remain substantially simpler than a generic enterprise LMS. The interface should optimize for the academic objects that recur constantly: courses, materials, problem sets, submissions, feedback, grades, announcements and deadlines.
 
-Define information architecture and student/teaching workflows using realistic academic objects. This phase is in progress.
+Mathematical and quantitative courses are first-class use cases, so LaTeX/Markdown, code attachments, datasets and structured problem-set workflows are planned as native capabilities rather than add-ons.
 
-### Phase 2 — Application foundation
+## Repository structure
 
-Move the approved interface to Next.js, add authentication, database migrations, file storage and server-enforced permissions.
+```text
+lms/
+├── src/
+│   ├── app/                 Next.js routes and layouts
+│   ├── components/          shared UI and role-aware workflows
+│   └── lib/                 domain types, data layer and Supabase clients
+├── supabase/schema.sql      initial PostgreSQL schema and RLS policies
+├── docs/architecture.md     product / security architecture notes
+├── .github/workflows/ci.yml
+├── package.json
+├── index.html               legacy static prototype
+├── app.js                   legacy prototype logic
+├── styles.css
+└── v2.css
+```
 
-### Phase 3 — Student workflows
+## Next milestones
 
-Implement persistent courses, materials, assignments, submissions, grades, calendar and announcements.
-
-### Phase 4 — Teaching workflows
-
-Implement assignment authoring, submission review, gradebook operations, publishing controls and TA permissions.
-
-### Phase 5 — Institutional features
-
-Add administration, SIS/SSO integrations, imports/exports, analytics, accessibility review, audit tooling, security hardening and production deployment.
+1. Create a Supabase project and apply the schema migration.
+2. Replace preview sign-in with real authentication.
+3. Load courses and memberships from PostgreSQL instead of mock data.
+4. Implement secure Storage buckets for course materials and assignment submissions.
+5. Persist submission versions, grades and feedback.
+6. Add LaTeX/Markdown authoring and rendering.
+7. Deploy the Next.js application to Vercel or an equivalent host.
 
 ## Status
 
-Early product prototype. Not affiliated with or deployed by the New Economic School.
+Active product prototype and application foundation. Not affiliated with or deployed by the New Economic School.

@@ -1,39 +1,55 @@
-# NES LMS
+# NES Learning
 
 A lightweight learning management system prototype designed around the day-to-day structure of courses at the New Economic School.
 
-The current repository contains the first UI/UX prototype. It is intentionally dependency-free so the product structure and visual language can be tested before a backend and authentication layer are introduced.
+The repository currently contains a dependency-free interactive UX prototype. The goal of this phase is to settle the product structure, permissions and visual language before moving to a persistent backend.
 
 ## Current prototype
 
-The demo includes:
+The demo now supports three preview roles inside one application:
 
-- student dashboard with upcoming deadlines and announcements;
-- current-course overview;
-- individual course pages with modules and learning materials;
-- assignments and submission states;
+- Student — dashboard, course materials, assignments, submissions, grades, calendar and search;
+- Teaching Assistant — teaching dashboard, submission progress, grading queue and gradebook access;
+- Instructor — course-management controls, coursework monitoring, gradebook and publishing actions.
+
+The entry screen also includes a prototype NES sign-in flow. Authentication is not real yet and no real student data is stored.
+
+## Main workflows
+
+Student experience:
+
+- term dashboard with the next deadline and announcements;
+- current-course overview and individual course pages;
+- course modules and learning materials;
+- assignment details and submission UI;
 - consolidated grade view;
 - academic calendar;
-- responsive mobile navigation;
 - command-palette search (`Ctrl/Cmd + K`).
 
-All data is currently mock data stored in `app.js`.
+Teaching experience:
+
+- cross-course teaching dashboard;
+- assignments requiring attention;
+- submission and grading progress;
+- course-management toolbar;
+- editable gradebook prototype;
+- publishing/export controls;
+- quick actions for assignments, materials and announcements.
 
 ## Files
 
 ```text
 lms/
-├── index.html      # application shell
-├── styles.css      # complete responsive design system
-├── app.js          # demo data, routing and interactive views
+├── index.html      # application shell and sign-in screen
+├── styles.css      # base responsive design system
+├── v2.css          # role-aware and teaching-workspace additions
+├── app.js          # demo data, routing, permissions and interactive views
 └── README.md
 ```
 
 ## Running locally
 
-Because the first prototype has no build step, it can be opened directly in a browser or served with any static HTTP server.
-
-For example:
+The prototype has no build step. Serve the repository with any static HTTP server:
 
 ```bash
 python -m http.server 8000
@@ -41,24 +57,28 @@ python -m http.server 8000
 
 Then open `http://localhost:8000`.
 
-## Product direction
+GitHub Pages can also serve the current prototype directly from `main` / repository root.
 
-The prototype is the design layer for a production LMS rather than the final technical architecture. Once the core screens and workflows are approved, the planned application can move to a full-stack implementation with:
+## Product principles
+
+NES Learning should remain substantially simpler than a generic enterprise LMS. The interface should optimize for the recurring academic objects that actually matter: courses, materials, problem sets, submissions, feedback, grades, announcements and deadlines.
+
+The same application shell should expose different capabilities through role-based permissions rather than splitting students and instructors into unrelated products.
+
+Mathematical and quantitative courses are first-class use cases. The production application should therefore support LaTeX/Markdown content, code attachments and structured problem-set workflows cleanly.
+
+## Production direction
+
+Once the UX is stable, the intended architecture is:
 
 - Next.js / React for the application UI;
-- PostgreSQL for persistent academic data;
+- PostgreSQL for academic data;
 - Supabase or an equivalent service for authentication, database access and file storage;
-- role-based access for students, teaching assistants, instructors and administrators;
-- secure assignment submissions;
-- instructor gradebook;
-- LaTeX and Markdown rendering;
-- course announcements and notifications;
-- release dates and deadlines;
-- audit history for submissions and grades.
+- row-level / role-based authorization for students, teaching assistants, instructors and administrators;
+- object storage for materials and submissions;
+- server-side audit history for submissions, grading and publishing actions.
 
 ## Planned domain model
-
-The first production schema is expected to center on:
 
 ```text
 users
@@ -73,29 +93,29 @@ announcements
 calendar_events
 ```
 
-`course_members` will connect a user with a course and define a role such as `student`, `ta`, or `instructor`.
+`course_members` connects a user to a course with a role such as `student`, `ta`, or `instructor`. Permissions should be derived from that membership rather than from client-side UI state.
 
 ## Development phases
 
 ### Phase 1 — UX prototype
 
-Define the information architecture and student experience using realistic course data and workflows.
+Define information architecture and student/teaching workflows using realistic academic objects. This phase is in progress.
 
 ### Phase 2 — Application foundation
 
-Move the approved interface to the full-stack application, add authentication, database migrations and role-based permissions.
+Move the approved interface to Next.js, add authentication, database migrations, file storage and server-enforced permissions.
 
 ### Phase 3 — Student workflows
 
-Implement enrollment views, materials, assignments, submissions, grades, calendar and announcements.
+Implement persistent courses, materials, assignments, submissions, grades, calendar and announcements.
 
-### Phase 4 — Instructor workflows
+### Phase 4 — Teaching workflows
 
-Add course administration, assignment creation, submission review, gradebook tools and publishing controls.
+Implement assignment authoring, submission review, gradebook operations, publishing controls and TA permissions.
 
 ### Phase 5 — Institutional features
 
-Add admin tools, integrations, analytics, imports/exports, accessibility review, security hardening and production deployment.
+Add administration, SIS/SSO integrations, imports/exports, analytics, accessibility review, audit tooling, security hardening and production deployment.
 
 ## Status
 
